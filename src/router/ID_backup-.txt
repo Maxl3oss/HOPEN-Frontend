@@ -1,0 +1,280 @@
+import { createRouter, createWebHistory } from "vue-router";
+
+// Import Layouts
+import FrontendLayout from "@/layouts/Frontend.vue";
+import BackendLayout from "@/layouts/Backend.vue";
+
+// Import Views
+// Frontend
+import Home from "@/views/frontend/Home.vue";
+import Cart from "@/views/frontend/Cart.vue";
+import Checkout from "@/views/frontend/Checkout.vue";
+import ProductDetails from "@/views/frontend/ProductDetails.vue";
+import Register from "@/views/frontend/Register.vue";
+import Login from "@/views/frontend/Login.vue";
+import ForgotPassword from "@/views/frontend/ForgotPassword.vue";
+import NotFound404 from "@/views/frontend/NotFound404.vue";
+import Purchase from "@/views/frontend/Purchase.vue";
+import PurchaseDetail from "@/views/frontend/PurchaseDetail.vue";
+
+// Backend
+import Dashbaord from "@/views/backend/Dashboard.vue";
+import Products from "@/views/backend/Products.vue";
+import Orders from "@/views/backend/Orders.vue";
+import OrderDetail from "@/views/backend/OrderDetail.vue";
+// ทดสอบสร้างตัวแปรไว้เช็คว่า login หรือยัง
+// let state = false
+
+// สร้างฟังก์ชันสำหรับเช็ค route ก่อนเรียกใช้งาน (Route Auth Guard)
+function authGuard(to, from, next) {
+  let isAuthenticated = false;
+  // รับค่า role
+  let getrole = JSON.parse(localStorage.getItem("user"));
+
+  if (getrole) {
+    isAuthenticated = true; // ถ้ามีข้อมูล localStorage อยู่
+  } else {
+    isAuthenticated = false; // ถ้าไม่มี localStorage
+  }
+  if (isAuthenticated) {
+    let res = getrole.user.role;
+
+    if (res == 1) {
+      next(); // อนุญาติให้เข้าสู่ route และโหลด component ที่ต้องการได้
+    } else {
+      next({ name: "Home" });
+      next(window.location.assign("/"));
+    }
+  } else {
+    next({ name: "Login" });
+  }
+}
+
+const routes = [
+  /** Frontend Route */
+  {
+    path: "/",
+    component: FrontendLayout,
+    children: [
+      {
+        path: "",
+        name: "Home",
+        component: Home,
+      },
+    ],
+    meta: {
+      title: "หน้าหลัก",
+      description: "หน้าหลักระบบคงคลังสินค้า",
+    },
+  },
+  {
+    path: "/cart",
+    component: FrontendLayout,
+    children: [
+      {
+        path: "",
+        name: "Cart",
+        component: Cart,
+      },
+    ],
+    meta: {
+      title: "รถเข็น",
+      description: "รายการสินค้า",
+    },
+  },
+  {
+    path: "/checkout",
+    component: FrontendLayout,
+    children: [
+      {
+        path: "",
+        name: "Checkout",
+        component: Checkout,
+      },
+    ],
+    meta: {
+      title: "ทำราายการ",
+      description: "ทำราายการซื้อสินค้า",
+    },
+  },
+  {
+    path: "/purchase",
+    component: FrontendLayout,
+    children: [
+      {
+        path: "",
+        name: "Purchase",
+        component: Purchase,
+      },
+    ],
+    meta: {
+      title: "รายการสั่งซื้อ",
+      description: "ข้อมูลรายการสั่งซื้อ",
+    },
+  },
+  {
+    path: "/detail",
+    component: FrontendLayout,
+    children: [
+      {
+        path: "",
+        name: "PurchaseDetail",
+        component: PurchaseDetail,
+      },
+    ],
+    meta: {
+      title: "รายละเอียด",
+      description: "รายละเอียดการสั่งซื้อ",
+    },
+  },
+  {
+    path: "/productdetails",
+    component: FrontendLayout,
+    children: [
+      {
+        path: "",
+        name: "ProductDetails",
+        component: ProductDetails,
+      },
+    ],
+    meta: {
+      title: "รายละเอียด",
+      description: "รายละเอียดสินค้า",
+    },
+  },
+  {
+    path: "/register",
+    component: FrontendLayout,
+    children: [
+      {
+        path: "",
+        name: "Register",
+        component: Register,
+      },
+    ],
+    meta: {
+      title: "สมัครสมาชิกใหม่",
+      description: "รายละเอียดสมัครสมาชิกใหม่",
+    },
+  },
+  {
+    path: "/login",
+    component: FrontendLayout,
+    children: [
+      {
+        path: "",
+        name: "Login",
+        component: Login,
+      },
+    ],
+    meta: {
+      title: "เข้าสู่ระบบ",
+      description: "รายละเอียดหน้าเข้าสู่ระบบ",
+    },
+  },
+  {
+    path: "/forgotpassword",
+    component: FrontendLayout,
+    children: [
+      {
+        path: "",
+        name: "ForgotPassword",
+        component: ForgotPassword,
+      },
+    ],
+    meta: {
+      title: "ลืมรหัสผ่าน",
+      description: "รายละเอียดหน้าลืมรหัสผ่าน",
+    },
+  },
+
+  // Error 404
+  {
+    path: "/:catchAll(.*)",
+    component: NotFound404,
+    meta: {
+      title: "404 ไม่พบหน้านี้",
+      description: "รายละเอียดหน้า 404",
+    },
+  },
+
+  /** Backend Route */
+  {
+    path: "/backend",
+    component: BackendLayout,
+    children: [
+      {
+        path: "",
+        name: "Dashboard",
+        component: Dashbaord,
+        beforeEnter: authGuard,
+        // beforeEnter: (to, from, next) => {
+        //   if(state){
+        //     next() // ให้โหลด component ที่เรากำลังเรียกใช้
+        //   }else{
+        //     next({name: 'Login'})
+        //   }
+        // }
+      },
+    ],
+    meta: {
+      title: "ผู้ใช้",
+    },
+  },
+  {
+    path: "/backend",
+    // name: 'Products',
+    component: BackendLayout,
+    children: [
+      {
+        path: "products",
+        name: "Products",
+        component: Products,
+        beforeEnter: authGuard,
+      },
+    ],
+    meta: {
+      title: "สินค้าทั้งหมด",
+    },
+  },
+
+  {
+    path: "/backend",
+    // name: 'Products',
+    component: BackendLayout,
+    children: [
+      {
+        path: "orders",
+        name: "Orders",
+        component: Orders,
+        beforeEnter: authGuard,
+      },
+    ],
+    meta: {
+      title: "รายการสั่งซื้อ",
+    },
+  },
+  {
+    path: "/backend",
+    // name: 'Products',
+    component: BackendLayout,
+    children: [
+      {
+        path: "orderdetail",
+        name: "OrderDetail",
+        component: OrderDetail,
+        beforeEnter: authGuard,
+      },
+    ],
+    meta: {
+      title: "รายละเอียดการสั่งซื้อ",
+    },
+  },
+];
+
+const router = createRouter({
+  history: createWebHistory(process.env.BASE_URL),
+  routes,
+});
+
+export default router;
